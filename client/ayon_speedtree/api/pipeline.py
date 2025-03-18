@@ -114,11 +114,14 @@ class SpeedtreeHost(HostBase, IWorkfileHost, ILoadHost, IPublishHost):
         return filepath
 
     def save_workfile(self, filepath=None):
+        has_workfile = False
         if not filepath:
             filepath = self.get_current_workfile()
+            has_workfile = True
         filepath, context = open_workfile(filepath)
         filepath = save_workfile(filepath, context)
-        copy_ayon_data(filepath)
+        if has_workfile:
+            copy_ayon_data(filepath)
         set_current_file(filepath)
         return filepath
 
@@ -167,7 +170,7 @@ class SpeedtreeHost(HostBase, IWorkfileHost, ILoadHost, IPublishHost):
 def containerise(
         name, context, namespace="", loader=None, containers=None):
     data = {
-        "schema": "openpype:container-2.0",
+        "schema": "ayon:container-2.0",
         "id": AYON_CONTAINER_ID,
         "name": name,
         "namespace": namespace,
