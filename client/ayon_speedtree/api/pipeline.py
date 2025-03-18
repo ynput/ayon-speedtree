@@ -21,7 +21,7 @@ from ayon_core.tools.utils import host_tools
 from ayon_speedtree import SPTREE_ADDON_ROOT
 from .lib import get_workdir, execute_sptree_command
 
-import SpeedTree
+import speedtree.SpeedTree as SpeedTree
 
 
 METADATA_SECTION = "avalon"
@@ -133,9 +133,9 @@ class SpeedtreeHost(HostBase, IWorkfileHost, ILoadHost, IPublishHost):
         return None
 
     def initial_app_launch(self):
-        """Triggers on launch of the communication server for Zbrush.
+        """Triggers on launch of the communication server for Speedtree.
 
-        Usually this aligns roughly with the start of Zbrush.
+        Usually this aligns roughly with the start of Speedtree.
         """
         #TODO: figure out how to deal with the last workfile issue
         set_current_file()
@@ -174,7 +174,7 @@ def write_context_metadata(metadata_key, context):
     """
     work_dir = get_workdir()
     json_dir = os.path.join(
-        work_dir, ".zbrush_metadata", metadata_key).replace(
+        work_dir, ".sptree_metadata", metadata_key).replace(
             "\\", "/"
         )
     os.makedirs(json_dir, exist_ok=True)
