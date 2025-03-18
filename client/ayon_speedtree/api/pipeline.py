@@ -121,8 +121,9 @@ class SpeedtreeHost(HostBase, IWorkfileHost, ILoadHost, IPublishHost):
         if not filepath:
             filepath = self.get_current_workfile()
         filepath, context = open_workfile(filepath)
-        options = SpeedTree.StpSaveSpmOptions()
-        context.saveSpeedTreeFile(filepath, options)
+        filepath = save_workfile(filepath, context)
+        copy_ayon_data(filepath)
+        set_current_file(filepath)
         return filepath
 
     def initial_app_launch(self):
@@ -143,6 +144,30 @@ class SpeedtreeHost(HostBase, IWorkfileHost, ILoadHost, IPublishHost):
         remove_tmp_data()
         SpeedTree.StpShutDown()
 
+    def update_context_data(self, data, changes):
+        return write_workfile_metadata(SPTREE_METADATA_CREATE_CONTEXT, data)
+
+    def get_context_data(self):
+        get_load_workfile_metadata(SPTREE_METADATA_CREATE_CONTEXT)
+
+
+def containerise(
+        name, context, namespace="", loader=None, containers=None):
+    data = {
+        "schema": "openpype:container-2.0",
+        "id": AYON_CONTAINER_ID,
+        "name": name,
+        "namespace": namespace,
+        "loader": str(loader),
+        "representation": str(context["representation"]["id"]),
+    }
+    if containers is None:
+        containers = get_containers()
+
+    containers.append(data)
+
+    write_load_metadata(containers)
+    return data
 
 def save_current_workfile_context(context):
     """Save current workfile context data to `.sptree_metadata/{workfile}/key`
@@ -191,6 +216,36 @@ def write_context_metadata(metadata_key, context):
         file.close()
 
 
+def write_workfile_metadata(metadata_key, data=None):
+    """Function to write workfile metadata(such as creator's context data
+    and instance data) in .sptree_metadata/{workfile}/{metadata_key} folder
+    This persists the current in-memory instance/creator's context data
+    to be set for a specific workfile on disk. Usually used on save to
+    persist updating instance data and context data used in publisher.
+
+    Args:
+        metadata_key (str): metadata key
+        data (list, optional): metadata. Defaults to None.
+    """
+    if data is None:
+        data = []
+    current_file = registered_host().get_current_workfile()
+    if current_file:
+        current_file = os.path.splitext(
+            os.path.basename(current_file))[0].strip()
+    work_dir = get_workdir()
+    json_dir = os.path.join(
+        work_dir, ".sptree_metadata",
+        current_file, metadata_key).replace(
+            "\\", "/"
+        )
+    os.makedirs(json_dir, exist_ok=True)
+    with open (f"{json_dir}/{metadata_key}.json", "w") as file:
+        value = json.dumps(data)
+        file.write(value)
+        file.close()
+
+
 def get_current_workfile_context():
     """Function to get the current context data from the related
     json file in .sptree_metadata/context folder
@@ -202,6 +257,95 @@ def get_current_workfile_context():
         list: list of context data
     """
     return get_load_context_metadata()
+
+
+def get_containers():
+    """Function to get the container data
+
+    Returns:
+        list: list of container data
+    """
+    output = get_load_workfile_metadata(SPTREE_SECTION_NAME_CONTAINERS)
+    if output:
+        for item in output:
+            if "objectName" not in item and "name" in item:
+                members = item["name"]
+                if isinstance(members, list):
+                    members = "|".join([str(member) for member in members])
+                item["objectName"] = members
+
+    return output
+
+
+def write_load_metadata(data):
+    """Write/Edit the container data into the related json file("{subset_name}.json")
+    which stores in .sptree_metadata/{workfile}/containers folder.
+    This persists the current in-memory containers data
+    to be set for updating and switching assets in scene inventory.
+
+    Args:
+        metadata_key (str): metadata key for container
+        data (list): list of container data
+    """
+    current_file = registered_host().get_current_workfile()
+    if current_file:
+        current_file = os.path.splitext(
+            os.path.basename(current_file))[0].strip()
+    work_dir = get_workdir()
+    name = next((d["name"] for d in data), None)
+    json_dir = os.path.join(
+        work_dir, ".sptree_metadata",
+        current_file, SPTREE_SECTION_NAME_CONTAINERS).replace(
+            "\\", "/"
+        )
+    os.makedirs(json_dir, exist_ok=True)
+    json_file = f"{json_dir}/{name}.json"
+    if os.path.exists(json_file):
+        with open(json_file, "w"):
+            pass
+
+    with open(json_file, "w") as file:
+        value = json.dumps(data)
+        file.write(value)
+        file.close()
+
+
+def copy_ayon_data(filepath):
+    """Copy any ayon-related data(
+        such as instances, create-context, cotnainers)
+        from the previous workfile to the new one
+        when incrementing and saving workfile.
+
+    Args:
+        filepath (str): the workfile path to be saved
+    """
+    filename = os.path.splitext(os.path.basename(filepath))[0].strip()
+    current_file = registered_host().get_current_workfile()
+    if current_file:
+        current_file = os.path.splitext(
+            os.path.basename(current_file))[0].strip()
+    work_dir = get_workdir()
+    for name in [SPTREE_METADATA_CREATE_CONTEXT,
+                 SPTREE_SECTION_NAME_INSTANCES,
+                 SPTREE_SECTION_NAME_CONTAINERS]:
+        src_json_dir = os.path.join(
+            work_dir, ".sptree_metadata", current_file, name).replace(
+                "\\", "/"
+            )
+        if not os.path.exists(src_json_dir):
+            continue
+        dst_json_dir = os.path.join(
+            work_dir, ".sptree_metadata", filename, name).replace(
+                "\\", "/"
+            )
+        os.makedirs(dst_json_dir, exist_ok=True)
+        all_fname_list = [jfile for jfile in os.listdir(src_json_dir)
+                        if jfile.endswith("json")]
+        if all_fname_list:
+            for fname in all_fname_list:
+                src_json = f"{src_json_dir}/{fname}"
+                dst_json = f"{dst_json_dir}/{fname}"
+                shutil.copy(src_json, dst_json)
 
 
 def get_load_context_metadata():
@@ -230,6 +374,48 @@ def get_load_context_metadata():
         with open (f"{json_dir}/{file}", "r") as data:
             content = ast.literal_eval(str(data.read().strip()))
             file_content.update(content)
+            data.close()
+    return file_content
+
+
+def get_load_workfile_metadata(metadata_key):
+    """Get to load the workfile json metadata(such as
+    creator's context data and container data) which stores in
+    .sptree_metadata/{workfile}/{metadata_key} folder in the project
+    work directory.
+    It mainly supports to the metadata_key below:
+    SPTREE_METADATA_CREATE_CONTEXT: loading create_context.json where
+        stores the data with publish_attributes(e.g. whether the
+        optional validator is enabled.)
+    SPTREE_SECTION_NAME_CONTAINERS: loading {subset_name}.json where
+        includes all the loaded asset data to the zbrush scene.
+
+    Args:
+        metadata_key (str): name of the metadata key
+
+    Returns:
+        list: list of metadata(create-context data or container data)
+    """
+    file_content = []
+    current_file = registered_host().get_current_workfile()
+    if current_file:
+        current_file = os.path.splitext(
+            os.path.basename(current_file))[0].strip()
+    work_dir = get_workdir()
+    json_dir = os.path.join(
+        work_dir, ".sptree_metadata",
+        current_file, metadata_key).replace(
+            "\\", "/"
+        )
+    if not os.path.exists(json_dir):
+        return file_content
+    file_list = os.listdir(json_dir)
+    if not file_list:
+        return file_content
+    for file in file_list:
+        with open (f"{json_dir}/{file}", "r") as data:
+            content = json.load(data)
+            file_content.extend(content)
             data.close()
     return file_content
 
@@ -298,3 +484,10 @@ def open_workfile(filepath):
         return filepath, context
 
     return None, context
+
+
+def save_workfile(filepath, context):
+    if filepath:
+        options = SpeedTree.StpSaveSpmOptions()
+        context.saveSpeedTreeFile(filepath, options)
+    return filepath
