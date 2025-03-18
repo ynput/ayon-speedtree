@@ -43,10 +43,6 @@ class SpeedtreeHost(HostBase, IWorkfileHost, ILoadHost, IPublishHost):
         show_tools_dialog()
 
     def install(self):
-        # Create workdir folder if does not exist yet
-        workdir = os.getenv("AYON_WORKDIR")
-        if not os.path.exists(workdir):
-            os.makedirs(workdir)
 
         plugins_dir = os.path.join(SPTREE_ADDON_ROOT, "plugins")
         publish_dir = os.path.join(plugins_dir, "publish")
@@ -125,6 +121,23 @@ class SpeedtreeHost(HostBase, IWorkfileHost, ILoadHost, IPublishHost):
         copy_ayon_data(filepath)
         set_current_file(filepath)
         return filepath
+
+    def list_instances(self):
+        """Get all AYON instances."""
+        # Figure out how to deal with this
+        return get_instance_workfile_metadata()
+
+    def write_instances(self, data):
+        """Write all AYON instances"""
+        return write_workfile_metadata(SPTREE_SECTION_NAME_INSTANCES, data)
+
+    def get_containers(self):
+        """Get the data of the containers
+
+        Returns:
+            list: the list which stores the data of the containers
+        """
+        return get_containers()
 
     def initial_app_launch(self):
         """Triggers on launch of the communication server for Speedtree.
@@ -437,6 +450,37 @@ def set_current_file(filepath=None):
         with open(txt_file, "w"):
             pass
         return filepath
+
+
+def get_instance_workfile_metadata():
+    """Get instance data from the related metadata json("instances.json")
+    which stores in .sptree_metadata/{workfile}/instances folder
+    in the project work directory.
+
+    Instance data includes the info like the workfile instance
+    and any instances created by the users for publishing.
+
+    Returns:
+        dict: instance data
+    """
+    file_content = []
+    current_file = registered_host().get_current_workfile()
+    if current_file:
+        current_file = os.path.splitext(
+            os.path.basename(current_file))[0].strip()
+    work_dir = get_workdir()
+    json_dir = os.path.join(
+        work_dir, ".sptree_metadata",
+        current_file, SPTREE_SECTION_NAME_INSTANCES).replace(
+            "\\", "/"
+        )
+    if not os.path.exists(json_dir) or not os.listdir(json_dir):
+        return file_content
+    for file in os.listdir(json_dir):
+        with open (f"{json_dir}/{file}", "r") as data:
+            file_content = json.load(data)
+
+    return file_content
 
 
 def remove_tmp_data():
