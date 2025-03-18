@@ -1,15 +1,15 @@
 import os
 import json
 import time
-import contextlib
+
 import subprocess
 import collections
 import asyncio
 import logging
 import socket
-import tempfile
+
 import threading
-import shutil
+
 from contextlib import closing
 
 from aiohttp import web
@@ -24,15 +24,6 @@ from ayon_core.lib import emit_event
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
-
-
-@contextlib.contextmanager
-def delete_after(path):
-    """Delete path after context"""
-    try:
-        yield
-    finally:
-        os.remove(path)
 
 
 class CommunicationWrapper:
@@ -63,7 +54,7 @@ class CommunicationWrapper:
 
     @classmethod
     def execute_sptree_command(cls, sptree_command):
-        """Execute passed zscript in Speedtree."""
+        """Execute passed Speedtree command in Speedtree."""
         if not cls.communicator:
             return
         return cls.communicator.execute_sptree_command(sptree_command)

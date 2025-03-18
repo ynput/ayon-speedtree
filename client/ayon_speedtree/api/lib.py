@@ -6,7 +6,6 @@ from . import CommunicationWrapper
 log = logging.getLogger("speedtree.lib")
 
 
-
 def get_workdir() -> str:
     """Return the currently active work directory"""
     return os.environ["AYON_WORKDIR"]

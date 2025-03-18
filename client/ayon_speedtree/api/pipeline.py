@@ -59,6 +59,7 @@ class SpeedtreeHost(HostBase, IWorkfileHost, ILoadHost, IPublishHost):
         register_creator_plugin_path(create_dir)
 
         register_event_callback("application.launched", self.initial_app_launch)
+        register_event_callback("application.exit", self.application_exit)
 
     def get_current_project_name(self):
         """
@@ -88,14 +89,8 @@ class SpeedtreeHost(HostBase, IWorkfileHost, ILoadHost, IPublishHost):
         context = get_current_workfile_context()
         if not context:
             return get_global_context()
-        if "project_name" in context:
-            return context
-        # This is legacy way how context was stored
-        return {
-            "project_name": context.get("project_name"),
-            "folder_path": context.get("folder_path"),
-            "task_name": context.get("task_name")
-        }
+
+        return context
 
     def get_current_workfile(self):
         work_dir = get_workdir()
@@ -127,10 +122,8 @@ class SpeedtreeHost(HostBase, IWorkfileHost, ILoadHost, IPublishHost):
             filepath = self.get_current_workfile()
         filepath, context = open_workfile(filepath)
         options = SpeedTree.StpSaveSpmOptions()
-        saved = context.saveSpeedTreeFile(filepath, options)
-        if saved:
-            return filepath
-        return None
+        context.saveSpeedTreeFile(filepath, options)
+        return filepath
 
     def initial_app_launch(self):
         """Triggers on launch of the communication server for Speedtree.
@@ -141,6 +134,14 @@ class SpeedtreeHost(HostBase, IWorkfileHost, ILoadHost, IPublishHost):
         set_current_file()
         context = get_global_context()
         save_current_workfile_context(context)
+        # Initialize the SpeedTree system
+        SpeedTree.StpInit()
+
+    def application_exit(self):
+        """Event action when the application exit
+        """
+        remove_tmp_data()
+        SpeedTree.StpShutDown()
 
 
 def save_current_workfile_context(context):
@@ -233,7 +234,6 @@ def get_load_context_metadata():
     return file_content
 
 
-
 def set_current_file(filepath=None):
     """Function to store current workfile path
 
@@ -251,34 +251,28 @@ def set_current_file(filepath=None):
         with open(txt_file, "w"):
             pass
         return filepath
-    filepath_check = tmp_current_file_check()
-    if filepath_check.endswith("spm"):
-        filepath = os.path.join(
-            os.path.dirname(filepath), filepath_check).replace("\\", "/")
-    with open (txt_file, "w") as current_file:
-        current_file.write(filepath)
-        current_file.close()
 
 
-def tmp_current_file_check():
-    """Function to find the latest .spm file used
-    by the user in Speedtree.
+def remove_tmp_data():
+    """Remove all temporary data which is created by AYON without
+    saving changes when launching Zbrush without enabling `skip
+    opening last workfile`
 
-    Returns:
-        file_content (str): the filepath in .spm format.
-            If the filepath does not end with '.spm' format,
-            it returns None.
     """
-    output_file = tempfile.NamedTemporaryFile(
-        mode="w", prefix="a_sptree_cfc", suffix=".txt", delete=False
-    )
-    output_filepath = output_file.name.replace("\\", "/")
-    output_file.write(output_filepath)
-    output_file.close()
-    with open(output_filepath) as data:
-        file_content = str(data.read().strip()).rstrip('\x00')
-    os.remove(output_filepath)
-    return file_content
+    work_dir = get_workdir()
+    for name in [SPTREE_METADATA_CREATE_CONTEXT,
+                 SPTREE_SECTION_NAME_INSTANCES,
+                 SPTREE_SECTION_NAME_CONTAINERS]:
+        json_dir = os.path.join(
+            work_dir, ".sptree_metadata", name).replace(
+                "\\", "/"
+            )
+        if not os.path.exists(json_dir):
+            continue
+        all_fname_list = [jfile for jfile in os.listdir(json_dir)
+                          if jfile.endswith("json")]
+        for fname in all_fname_list:
+            os.remove(f"{json_dir}/{fname}")
 
 
 def show_tools_dialog():
@@ -289,26 +283,6 @@ def show_tools_dialog():
     from ayon_speedtree.api import tools_ui
 
     tools_ui.show_tools_dialog()
-
-
-def show_creator():
-    host_tools.show_creator()
-
-
-def show_loader():
-    host_tools.show_loader(use_context=True)
-
-
-def show_publisher():
-    host_tools.show_publish()
-
-
-def show_manager():
-    host_tools.show_scene_inventory()
-
-
-def show_workfiles():
-    host_tools.show_workfiles(use_context=True)
 
 
 def open_workfile(filepath):
