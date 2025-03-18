@@ -4,7 +4,7 @@ import ayon_api
 from ayon_core.pipeline import CreatedInstance
 from ayon_speedtree.api import plugin
 
-class CreateWorkfile(plugin.ZbrushAutoCreator):
+class CreateWorkfile(plugin.SpeedTreeAutoCreator):
     """Workfile auto-creator."""
     identifier = "io.ayon.creators.speedtree.workfile"
     label = "Workfile"
