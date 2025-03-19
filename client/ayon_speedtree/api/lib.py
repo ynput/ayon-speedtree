@@ -37,32 +37,6 @@ def execute_sptree_command(zscript, communicator=None):
     return communicator.execute_sptree_command(zscript)
 
 
-def _enum_windows_callback(hwnd, windows):
-    """Function to get the list of open windows for hacky way to
-    save file before passing to SDK to execute the action
-    Args:
-        hwnd (_type_): _description_
-        windows (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
-    if user32.IsWindowVisible(hwnd) and user32.IsWindowEnabled(hwnd):
-        length = user32.GetWindowTextLengthW(hwnd)
-        buff = ctypes.create_unicode_buffer(length + 1)
-        user32.GetWindowTextW(hwnd, buff, length + 1)
-        windows.append((hwnd, buff.value))
-    return True
-
-
-def get_open_windows():
-    WNDENUMPROC = ctypes.WINFUNCTYPE(ctypes.c_bool, ctypes.POINTER(ctypes.c_int), ctypes.POINTER(ctypes.c_int))
-    enum_windows_callback_func = WNDENUMPROC(_enum_windows_callback)
-    windows = []
-    user32.EnumWindows(enum_windows_callback_func, ctypes.byref(ctypes.c_int(len(windows))))
-    return windows
-
-
 def save_file_with_hotkey():
     """Function to save a file using a hotkey (Ctrl+S)
 
