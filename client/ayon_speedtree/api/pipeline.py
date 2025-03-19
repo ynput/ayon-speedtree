@@ -4,7 +4,6 @@ import ast
 import json
 import shutil
 import logging
-import tempfile
 import pyblish.api
 from ayon_core.host import HostBase, IWorkfileHost, ILoadHost, IPublishHost
 from ayon_core.pipeline import (
@@ -17,9 +16,8 @@ from ayon_core.pipeline.context_tools import get_global_context
 
 from ayon_core.settings import get_current_project_settings
 from ayon_core.lib import register_event_callback
-from ayon_core.tools.utils import host_tools
 from ayon_speedtree import SPTREE_ADDON_ROOT
-from .lib import get_workdir, execute_sptree_command
+from .lib import get_workdir, set_focus_to_window
 
 import speedtree.SpeedTree as SpeedTree
 
@@ -118,8 +116,9 @@ class SpeedtreeHost(HostBase, IWorkfileHost, ILoadHost, IPublishHost):
         if not filepath:
             filepath = self.get_current_workfile()
             has_workfile = True
-        filepath, context = open_workfile(filepath)
-        filepath = save_workfile(filepath, context)
+        with set_focus_to_window("Work Files"):
+            filepath, context = open_workfile(filepath)
+            filepath = save_workfile(filepath, context)
         if has_workfile:
             copy_ayon_data(filepath)
         set_current_file(filepath)
@@ -455,6 +454,46 @@ def set_current_file(filepath=None):
         return filepath
 
 
+def imprint(container, representation_id):
+    """Function to update the container data from
+    the related json file in .sptree_metadata/{workfile}/container
+    when updating or switching asset(s)
+
+    Args:
+        container (str): container
+        representation_id (str): representation id
+    """
+    old_container_data = []
+    data = {}
+    name = container["objectName"]
+    current_file = registered_host().get_current_workfile()
+    if current_file:
+        current_file = os.path.splitext(
+            os.path.basename(current_file))[0].strip()
+    work_dir = get_workdir()
+    json_dir = os.path.join(
+        work_dir, ".sptree_metadata",
+        current_file, SPTREE_SECTION_NAME_CONTAINERS).replace(
+            "\\", "/"
+        )
+    js_fname = next((jfile for jfile in os.listdir(json_dir)
+                     if jfile.endswith(f"{name}.json")), None)
+    if js_fname:
+        with open(f"{json_dir}/{js_fname}", "r") as file:
+            old_container_data = json.load(file)
+            print(f"data: {type(old_container_data)}")
+            file.close()
+
+        open(f"{json_dir}/{js_fname}", 'w').close()
+        for item in old_container_data:
+            item["representation"] = representation_id
+            data.update(item)
+        with open(f"{json_dir}/{js_fname}", "w") as file:
+            new_container_data = json.dumps([data])
+            file.write(new_container_data)
+            file.close()
+
+
 def get_instance_workfile_metadata():
     """Get instance data from the related metadata json("instances.json")
     which stores in .sptree_metadata/{workfile}/instances folder
@@ -486,9 +525,33 @@ def get_instance_workfile_metadata():
     return file_content
 
 
+def remove_container_data(name):
+    """Function to remove the specific container data from
+    {subset_name}.json in .sptree_metadata/{workfile}/containers folder
+
+    Args:
+        name (str): object name stored in the container
+    """
+    current_file = registered_host().get_current_workfile()
+    if current_file:
+        current_file = os.path.splitext(
+            os.path.basename(current_file))[0].strip()
+    work_dir = get_workdir()
+    json_dir = os.path.join(
+        work_dir, ".sptree_metadata",
+        current_file, SPTREE_SECTION_NAME_CONTAINERS).replace(
+            "\\", "/"
+        )
+    all_fname_list = os.listdir(json_dir)
+    json_file = next((jfile for jfile in all_fname_list
+                               if jfile == f"{name}.json"), None)
+    if json_file:
+        os.remove(f"{json_dir}/{json_file}")
+
+
 def remove_tmp_data():
     """Remove all temporary data which is created by AYON without
-    saving changes when launching Zbrush without enabling `skip
+    saving changes when launching Speedtree without enabling `skip
     opening last workfile`
 
     """
