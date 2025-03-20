@@ -1,6 +1,8 @@
 # Addon package directory
 /package/*
 
+client/ayon_speedtree/api/sdk/speedtree
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

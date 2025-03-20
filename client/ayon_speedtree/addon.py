@@ -20,18 +20,18 @@ class SpeedtreeAddon(AYONAddon, IHostAddon):
     host_name = "speedtree"
 
     def add_implementation_envs(self, env, app):
-        # Add AYON zscripts
-        # new_speedtree_paths = [
-        #     os.path.join(SPTREE_ADDON_ROOT, "api", "sdk")
-        # ]
-        # old_speedtree_path = env.get("SPTREE_SDK_PATH") or ""
-        # for path in old_speedtree_path.split(os.pathsep):
-        #     if not path:
-        #         continue
-        #     norm_path = os.path.normpath(path)
-        #     if norm_path not in new_speedtree_paths:
-        #         new_speedtree_paths.append(norm_path)
-        # env["SPTREE_SDK_PATH"] = os.pathsep.join(new_speedtree_paths)
+        new_python_paths = [
+            os.path.join(
+                SPTREE_ADDON_ROOT, "api", "sdk")
+        ]
+        old_python_path = env.get("PYTHONPATH") or ""
+        for path in old_python_path.split(os.pathsep):
+            if not path:
+                continue
+            norm_path = os.path.normpath(path)
+            if norm_path not in new_python_paths:
+                new_python_paths.append(norm_path)
+        env["PYTHONPATH"] = os.pathsep.join(new_python_paths)
 
         # Set default environments if are not set via settings
         defaults = {
