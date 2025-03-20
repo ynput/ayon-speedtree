@@ -17,7 +17,7 @@ from ayon_core.pipeline.context_tools import get_global_context
 from ayon_core.settings import get_current_project_settings
 from ayon_core.lib import register_event_callback
 from ayon_speedtree import SPTREE_ADDON_ROOT
-from .lib import get_workdir, set_focus_to_window
+from .lib import get_workdir, save_scene
 
 import speedtree.SpeedTree as SpeedTree
 
@@ -116,7 +116,7 @@ class SpeedtreeHost(HostBase, IWorkfileHost, ILoadHost, IPublishHost):
         if not filepath:
             filepath = self.get_current_workfile()
             has_workfile = True
-        with set_focus_to_window("Work Files"):
+        with save_scene("Work Files"):
             filepath, context = open_workfile(filepath)
             filepath = save_workfile(filepath, context)
         if has_workfile:

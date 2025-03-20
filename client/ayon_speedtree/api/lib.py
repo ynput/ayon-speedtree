@@ -5,6 +5,8 @@ import ctypes
 import time
 import contextlib
 
+import speedtree.SpeedTree as SpeedTree
+
 
 log = logging.getLogger("speedtree.lib")
 
@@ -37,7 +39,7 @@ def execute_sptree_command(zscript, communicator=None):
     return communicator.execute_sptree_command(zscript)
 
 
-def save_file_with_hotkey():
+def _save_file_with_hotkey():
     """Function to save a file using a hotkey (Ctrl+S)
 
     """
@@ -50,9 +52,9 @@ def save_file_with_hotkey():
 
 
 @contextlib.contextmanager
-def set_focus_to_window(window_title):
-    """Function to save file before passing it into the headless SDR to publish or
-    increment and save file.
+def save_scene(window_title):
+    """Hacky function to save file during context before passing
+    it into the headless SDR to publish or increment and save file
 
     Args:
         window_title (str, optional): Current Ayon tool windows.
@@ -64,9 +66,47 @@ def set_focus_to_window(window_title):
         if user32.IsIconic(hwnd):
             user32.ShowWindow(hwnd, SW_RESTORE)
         user32.SetForegroundWindow(hwnd)
-        save_file_with_hotkey()
+        _save_file_with_hotkey()
     try:
         yield
     finally:
         user32.ShowWindow(prev_hwnd, SW_RESTORE)
 
+
+def export_model(current_file: str, fbx_filepath: str, xml_filepath: str):
+    """Function to export model in fbx format along with the xml file.
+
+    Args:
+        current_file (str): current file
+        fbx_filepath (str): fbx output filepath
+        xml_filepath (str): xml output filepath
+    """
+    resource_path = os.path.dirname(os.path.dirname(os.environ["SPTREE_EXE"]))
+    resource_path = os.path.normpath(resource_path)
+    SpeedTree.StpSetExportResourcePath(resource_path)
+    context = SpeedTree.StpContext()
+    context.new()
+    loaded, _ = context.loadSpeedTreeFile(current_file)
+    if loaded:
+        # Configure FBX export options
+        export_options = SpeedTree.StpVfxExportOptions()
+        export_options.initVfxExportOptions()
+
+        # Set FBX-specific options
+        export_options.fbxCacheCompatible = True
+        export_options.fbxCacheFormat = SpeedTree.StpFbxCacheFormat.STP_FBX_CACHE_FORMAT_MCX
+        export_options.fbxAxis = SpeedTree.StpFbxAxis.STP_FBX_AXIS_MAYA_Y_UP
+        export_options.fbxBonesSmooth = True
+        # Set other export options
+        export_options.include3dGeometry = True
+        export_options.includeBones = True
+        export_options.animationWind = True
+        export_options.animationFPS = 30
+        export_options.textureSkipWriting = True
+        fbx_success = context.exportForVfx(fbx_filepath, export_options)
+        xml_success = context.exportForVfx(xml_filepath, export_options)
+        # Cleanup
+        if fbx_success and xml_success:
+            log.debug("Successfully export tree model.")
+
+    context.delete()
