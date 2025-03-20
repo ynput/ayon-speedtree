@@ -4,7 +4,7 @@ from ayon_core.pipeline import publish
 from ayon_core.pipeline.publish import (
     AYONPyblishPluginMixin
 )
-from ayon_speedtree.api.lib import save_scene
+from ayon_speedtree.api.lib import save_scene, export_model
 
 
 
@@ -24,12 +24,15 @@ class ExtractModel(publish.Extractor,
         stagingdir = self.staging_dir(instance)
         fbx_filename = f"{instance.name}.fbx"
         fbx_filepath = os.path.join(stagingdir, fbx_filename)
+        fbx_filepath = os.path.normpath(fbx_filepath)
 
         xml_filename = f"{instance.name}.xml"
         xml_filepath = os.path.join(stagingdir, xml_filename)
-        # TODO: implement the export code.
+        xml_filepath = os.path.normpath(xml_filepath)
+
         with save_scene("Ayon Publisher"):
-            pass
+            current_file = instance.context.data["current_file"]
+            export_model(current_file, fbx_filepath, xml_filepath)
 
         if "representations" not in instance.data:
             instance.data["representations"] = []
