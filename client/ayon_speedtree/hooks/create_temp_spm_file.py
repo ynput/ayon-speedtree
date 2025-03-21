@@ -27,9 +27,11 @@ class CreateTempSpmFile(PreLaunchHook):
                 self.data["project_name"],
                 use_local_temp=True
             )
+            # TODO: we can allow users to use their custom templates by task type.
+            spm_filename = "Blank.spm"
             source_template_file = os.path.join(
-                template_directory, "tree_templates/Games/Blank.spm")
-            last_workfile = os.path.join(staging_dir, "Blank.spm")
+                template_directory, f"tree_templates/Games/{spm_filename}")
+            last_workfile = os.path.join(staging_dir, spm_filename)
             shutil.copyfile(source_template_file, last_workfile)
             self.launch_context.launch_args.append(last_workfile)
 
