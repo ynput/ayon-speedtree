@@ -147,7 +147,8 @@ class SpeedtreeHost(HostBase, IWorkfileHost, ILoadHost, IPublishHost):
         Usually this aligns roughly with the start of Speedtree.
         """
         #TODO: figure out how to deal with the last workfile issue
-        set_current_file()
+        current_file = os.environ["CURRENT_SPM"]
+        set_current_file(current_file)
         context = get_global_context()
         save_current_workfile_context(context)
         # Initialize the SpeedTree system

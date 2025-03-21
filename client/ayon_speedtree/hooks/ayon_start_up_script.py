@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 """Pre-launch to force speedtree startup script."""
-import os
 from ayon_speedtree import get_launch_script_path
 from ayon_core.lib import get_ayon_launcher_args
 from ayon_applications import PreLaunchHook, LaunchTypes
