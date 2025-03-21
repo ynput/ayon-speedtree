@@ -96,10 +96,7 @@ class SpeedtreeHost(HostBase, IWorkfileHost, ILoadHost, IPublishHost):
             content = str(current_file.read())
             filepath = content.rstrip('\x00')
             current_file.close()
-        if filepath is None:
-            filepath = os.environ["CURRENT_SPM"]
-
-        return filepath
+            return filepath
 
     def workfile_has_unsaved_changes(self):
         # Pop-up dialog would be located to ask if users
@@ -115,20 +112,14 @@ class SpeedtreeHost(HostBase, IWorkfileHost, ILoadHost, IPublishHost):
         return filepath
 
     def save_workfile(self, filepath=None):
-        has_workfile = False
         if not filepath:
-            filepath = (
-                self.get_current_workfile()
-                or os.environ["CURRENT_SPM"]
-            )
-            has_workfile = True
+            filepath = self.get_current_workfile()
         with save_scene("Work Files"):
-            filepath, context = open_workfile(filepath)
+            context = open_workfile(filepath)
             filepath = save_workfile(filepath, context)
-        load_spm_file(filepath)
-        if has_workfile:
-            copy_ayon_data(filepath)
+        copy_ayon_data(filepath)
         set_current_file(filepath)
+        load_spm_file(filepath)
         return filepath
 
     def list_instances(self):
@@ -459,7 +450,11 @@ def set_current_file(filepath=None):
     if filepath is None:
         with open(txt_file, "w"):
             pass
-        return filepath
+    with open (txt_file, "w") as current_file:
+        current_file.write(filepath)
+        current_file.close()
+
+    return filepath
 
 
 def imprint(container, representation_id):
@@ -592,20 +587,19 @@ def show_tools_dialog():
 def open_workfile(filepath):
     context = SpeedTree.StpContext()
     context.new()
-
-    # Set maximum CPU threads
-    context.setMaxCpuThreads(4)
-
     # Load a SpeedTree file
+    if not os.path.exists(filepath):
+        filepath = os.environ["CURRENT_SPM"]
     loaded, _ = context.loadSpeedTreeFile(filepath)
     if loaded:
-        return filepath, context
-
-    return None, context
+        return context
+    return None
 
 
 def save_workfile(filepath, context):
     if filepath:
         options = SpeedTree.StpSaveSpmOptions()
         context.saveSpeedTreeFile(filepath, options)
+
+    context.delete()
     return filepath

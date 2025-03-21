@@ -18,8 +18,10 @@ class CreateTempSpmFile(PreLaunchHook):
 
     def execute(self):
         last_workfile = self.data.get("last_workfile_path")
-        if self.data.get("start_last_workfile") and last_workfile:
-            self.log.info("It is set to not start last workfile on start.")
+        if self.data.get("start_last_workfile")  \
+            and last_workfile  \
+                and os.path.exists(last_workfile):
+            self.log.info("It is set to start last workfile on start.")
         else:
             executable_path = self.launch_context.env["SPTREE_EXE"]
             template_directory = os.path.dirname(os.path.dirname(executable_path))
@@ -33,7 +35,8 @@ class CreateTempSpmFile(PreLaunchHook):
                 template_directory, f"tree_templates/Games/{spm_filename}")
             last_workfile = os.path.join(staging_dir, spm_filename)
             shutil.copyfile(source_template_file, last_workfile)
-            self.launch_context.launch_args.append(last_workfile)
+
+        self.launch_context.launch_args.append(last_workfile)
 
         self.launch_context.env["CURRENT_SPM"] = last_workfile
 
