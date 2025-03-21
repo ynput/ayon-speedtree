@@ -110,3 +110,16 @@ def export_model(current_file: str, fbx_filepath: str, xml_filepath: str):
             log.debug("Successfully export tree model.")
 
     context.delete()
+
+
+def load_spm_file(spm_file, communicator=None):
+    """Load spm file for either loading existing file or refreshing purpose.
+    There is no way in SpeedTree to increment and save for current workfile.
+    Ayon needs to always save and re-load the spm file again for getting
+    the latest version.
+    """
+    if not communicator:
+        communicator = CommunicationWrapper.communicator
+    print(f"Loading Spm file: {spm_file}")
+    speedtree_executable = os.environ["SPTREE_EXE"]
+    return communicator.replace_process([speedtree_executable, spm_file])

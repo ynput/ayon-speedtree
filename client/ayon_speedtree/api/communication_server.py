@@ -53,11 +53,11 @@ class CommunicationWrapper:
         return cls.communicator.client()
 
     @classmethod
-    def execute_sptree_command(cls, sptree_command):
-        """Execute passed Speedtree command in Speedtree."""
+    def replace_process(cls, launch_args):
+        """Load spm file."""
         if not cls.communicator:
             return
-        return cls.communicator.execute_sptree_command(sptree_command)
+        return cls.communicator.replace_process(launch_args)
 
 
 class WebSocketServer:
@@ -466,6 +466,22 @@ class BaseCommunicator:
             return False
         return self.websocket_server.server_is_running
 
+    def replace_process(self, new_process_args: list):
+        """
+        Replace the current subprocess with a new one.
+
+        Args:
+            new_process_args (list): The arguments to pass to the new subprocess.
+        """
+        # Terminate the current process if it's running
+        prev_process = self.process
+        self._launch_speedtree(new_process_args)
+        if prev_process and prev_process.poll() is None:
+            prev_process.terminate()  # or self.process.kill() for forceful termination
+            prev_process.wait()  # Wait for the process to terminate
+
+        log.info("Replaced subprocess with new process: {}".format(new_process_args))
+
     def _launch_speedtree(self, launch_args):
         flags = (
             subprocess.DETACHED_PROCESS
@@ -587,13 +603,6 @@ class BaseCommunicator:
         self.websocket_rpc.send_notification(
             client, method, params
         )
-
-    def execute_sptree_command(self, sptree_command):
-        """Execute passed speedtree command in Speedtree."""
-        sptree_exe = os.environ["SPTREE_EXE"]
-
-        subprocess.call(
-            [sptree_exe, "--load", r"D:\speed_tree_spm\my_tree.spm"], shell=True)
 
 
 class QtCommunicator(BaseCommunicator):

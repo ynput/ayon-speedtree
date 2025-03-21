@@ -17,7 +17,7 @@ from ayon_core.pipeline.context_tools import get_global_context
 from ayon_core.settings import get_current_project_settings
 from ayon_core.lib import register_event_callback
 from ayon_speedtree import SPTREE_ADDON_ROOT
-from .lib import get_workdir, save_scene
+from .lib import get_workdir, save_scene, load_spm_file
 
 import speedtree.SpeedTree as SpeedTree
 
@@ -96,7 +96,10 @@ class SpeedtreeHost(HostBase, IWorkfileHost, ILoadHost, IPublishHost):
             content = str(current_file.read())
             filepath = content.rstrip('\x00')
             current_file.close()
-            return filepath
+        if filepath is None:
+            filepath = os.environ["CURRENT_SPM"]
+
+        return filepath
 
     def workfile_has_unsaved_changes(self):
         # Pop-up dialog would be located to ask if users
@@ -107,18 +110,22 @@ class SpeedtreeHost(HostBase, IWorkfileHost, ILoadHost, IPublishHost):
         return [".spm"]
 
     def open_workfile(self, filepath):
-        filepath, _ = open_workfile(filepath)
+        load_spm_file(filepath)
         set_current_file(filepath=filepath)
         return filepath
 
     def save_workfile(self, filepath=None):
         has_workfile = False
         if not filepath:
-            filepath = self.get_current_workfile()
+            filepath = (
+                self.get_current_workfile()
+                or os.environ["CURRENT_SPM"]
+            )
             has_workfile = True
         with save_scene("Work Files"):
             filepath, context = open_workfile(filepath)
             filepath = save_workfile(filepath, context)
+        load_spm_file(filepath)
         if has_workfile:
             copy_ayon_data(filepath)
         set_current_file(filepath)
