@@ -16,21 +16,21 @@ class ToolsBtnsWidget(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super(ToolsBtnsWidget, self).__init__(parent)
 
-        load_btn = QtWidgets.QPushButton("Load...", self)
+        # load_btn = QtWidgets.QPushButton("Load...", self)
+        # manage_btn = QtWidgets.QPushButton("Manage...", self)
         publish_btn = QtWidgets.QPushButton("Publish...", self)
-        manage_btn = QtWidgets.QPushButton("Manage...", self)
         workfile_btn = QtWidgets.QPushButton("Workfile...", self)
 
         layout = QtWidgets.QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(load_btn, 0)
-        layout.addWidget(manage_btn, 0)
+        # layout.addWidget(load_btn, 0)
+        # layout.addWidget(manage_btn, 0)
         layout.addWidget(publish_btn, 0)
         layout.addWidget(workfile_btn , 0)
         layout.addStretch(1)
 
-        load_btn.clicked.connect(self._on_load)
-        manage_btn.clicked.connect(self._on_manage)
+        # load_btn.clicked.connect(self._on_load)
+        # manage_btn.clicked.connect(self._on_manage)
         publish_btn.clicked.connect(self._on_publish)
         workfile_btn.clicked.connect(self._on_workfile)
 
