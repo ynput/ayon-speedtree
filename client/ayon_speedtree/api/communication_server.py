@@ -483,7 +483,10 @@ class BaseCommunicator:
             # Wait for the process to terminate
             prev_process.wait()
 
-        log.info("Replaced subprocess with new process: {}".format(new_process_args))
+        log.info(
+            "Replaced subprocess with new process: {}".format(
+            new_process_args)
+        )
 
     def _launch_speedtree(self, launch_args):
         flags = (
