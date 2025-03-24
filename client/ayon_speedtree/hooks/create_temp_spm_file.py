@@ -7,7 +7,7 @@ from ayon_core.pipeline import tempdir
 class CreateTempSpmFile(PreLaunchHook):
     """Create Temp Spm File to SpeedTree.
 
-    The temp spm file would be created in SpeedTree prior to 
+    The temp spm file would be created in SpeedTree prior to
     the launch of the software if there is no last workfile
 
     Hook `GlobalHostDataHook` must be executed before this hook.
@@ -24,12 +24,15 @@ class CreateTempSpmFile(PreLaunchHook):
             self.log.info("It is set to start last workfile on start.")
         else:
             executable_path = self.launch_context.env["SPTREE_EXE"]
-            template_directory = os.path.dirname(os.path.dirname(executable_path))
+            template_directory = os.path.dirname(
+                os.path.dirname(executable_path)
+            )
             staging_dir = tempdir.get_temp_dir(
                 self.data["project_name"],
                 use_local_temp=True
             )
-            # TODO: we can allow users to use their custom templates by task type.
+            # TODO: we can allow users to use their custom
+            # templates by task type.
             spm_filename = "Blank.spm"
             source_template_file = os.path.join(
                 template_directory, f"tree_templates/Games/{spm_filename}")

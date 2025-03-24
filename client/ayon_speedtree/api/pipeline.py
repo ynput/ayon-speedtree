@@ -14,7 +14,6 @@ from ayon_core.pipeline import (
 )
 from ayon_core.pipeline.context_tools import get_global_context
 
-from ayon_core.settings import get_current_project_settings
 from ayon_core.lib import register_event_callback
 from ayon_speedtree import SPTREE_ADDON_ROOT
 from .lib import get_workdir, save_scene, load_spm_file
@@ -52,7 +51,9 @@ class SpeedtreeHost(HostBase, IWorkfileHost, ILoadHost, IPublishHost):
         register_loader_plugin_path(load_dir)
         register_creator_plugin_path(create_dir)
 
-        register_event_callback("application.launched", self.initial_app_launch)
+        register_event_callback(
+            "application.launched", self.initial_app_launch
+        )
         register_event_callback("application.exit", self.application_exit)
 
     def get_current_project_name(self):
@@ -292,7 +293,8 @@ def get_containers():
 
 
 def write_load_metadata(data):
-    """Write/Edit the container data into the related json file("{subset_name}.json")
+    """Write/Edit the container data into the related json file
+    ("{subset_name}.json")
     which stores in .sptree_metadata/{workfile}/containers folder.
     This persists the current in-memory containers data
     to be set for updating and switching assets in scene inventory.

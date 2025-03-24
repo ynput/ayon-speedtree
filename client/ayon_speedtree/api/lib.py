@@ -94,7 +94,9 @@ def export_model(current_file: str, fbx_filepath: str, xml_filepath: str):
 
         # Set FBX-specific options
         export_options.fbxCacheCompatible = True
-        export_options.fbxCacheFormat = SpeedTree.StpFbxCacheFormat.STP_FBX_CACHE_FORMAT_MCX
+        export_options.fbxCacheFormat = (
+            SpeedTree.StpFbxCacheFormat.STP_FBX_CACHE_FORMAT_MCX
+        )
         export_options.fbxAxis = SpeedTree.StpFbxAxis.STP_FBX_AXIS_MAYA_Y_UP
         export_options.fbxBonesSmooth = True
         # Set other export options

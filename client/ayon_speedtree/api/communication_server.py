@@ -471,14 +471,17 @@ class BaseCommunicator:
         Replace the current subprocess with a new one.
 
         Args:
-            new_process_args (list): The arguments to pass to the new subprocess.
+            new_process_args (list): The arguments to pass to the
+                                     new subprocess.
         """
         # Terminate the current process if it's running
         prev_process = self.process
         self._launch_speedtree(new_process_args)
         if prev_process and prev_process.poll() is None:
-            prev_process.terminate()  # or self.process.kill() for forceful termination
-            prev_process.wait()  # Wait for the process to terminate
+            # or self.process.kill() for forceful termination
+            prev_process.terminate()
+            # Wait for the process to terminate
+            prev_process.wait()
 
         log.info("Replaced subprocess with new process: {}".format(new_process_args))
 
