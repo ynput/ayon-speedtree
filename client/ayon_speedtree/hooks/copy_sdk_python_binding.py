@@ -16,7 +16,9 @@ class SpeedtreeStartupScript(PreLaunchHook):
 
     def execute(self):
         speedtree_settings = self.data["project_settings"]["speedtree"]
-        sdk_folder = speedtree_settings["sdk_directory"]
+        sdk_folder = os.path.normpath(
+            speedtree_settings["sdk_directory"]
+        )
         if not sdk_folder and not os.path.exists(sdk_folder):
             raise RuntimeError(
                 "Directory not found. Fail to copy the "
