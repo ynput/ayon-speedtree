@@ -31,7 +31,7 @@ class ExtractModel(publish.Extractor,
         xml_filepath = os.path.normpath(xml_filepath)
 
         with save_scene("Ayon Publisher"):
-            current_file = instance.context.data["current_file"]
+            current_file = instance.context.data["currentFile"]
             export_model(current_file, fbx_filepath, xml_filepath)
 
         if "representations" not in instance.data:
