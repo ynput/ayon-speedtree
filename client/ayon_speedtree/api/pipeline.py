@@ -113,10 +113,10 @@ class SpeedtreeHost(HostBase, IWorkfileHost, ILoadHost, IPublishHost):
         return filepath
 
     def save_workfile(self, filepath=None):
+        if not filepath:
+            filepath = self.get_current_workfile()
         with save_scene("Work Files"):
-            if not filepath:
-                filepath = self.get_current_workfile()
-            context = open_workfile(filepath)
+            context = open_workfile()
             filepath = save_workfile(filepath, context)
         copy_ayon_data(filepath)
         set_current_file(filepath)
@@ -586,12 +586,10 @@ def show_tools_dialog():
     tools_ui.show_tools_dialog()
 
 
-def open_workfile(filepath):
+def open_workfile():
     context = SpeedTree.StpContext()
     context.new()
-    # Load a SpeedTree file
-    if not os.path.exists(filepath):
-        filepath = os.environ["CURRENT_SPM"]
+    filepath = os.environ["CURRENT_SPM"]
     loaded, _ = context.loadSpeedTreeFile(filepath)
     if loaded:
         return context
@@ -602,6 +600,8 @@ def save_workfile(filepath, context):
     if filepath:
         options = SpeedTree.StpSaveSpmOptions()
         context.saveSpeedTreeFile(filepath, options)
+
+    os.environ["CURRENT_SPM"] = filepath
 
     context.delete()
     return filepath
