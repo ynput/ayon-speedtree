@@ -112,9 +112,10 @@ class SpeedtreeHost(HostBase, IWorkfileHost, ILoadHost, IPublishHost):
         return filepath
 
     def save_workfile(self, filepath=None):
-        if not filepath:
-            filepath = self.get_current_workfile()
         with save_scene("Work Files"):
+            if not filepath:
+                filepath = self.get_current_workfile()
+            # fix this
             context = open_workfile(filepath)
             filepath = save_workfile(filepath, context)
         copy_ayon_data(filepath)
