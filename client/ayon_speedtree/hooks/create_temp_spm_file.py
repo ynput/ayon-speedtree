@@ -23,19 +23,12 @@ class CreateTempSpmFile(PreLaunchHook):
                 and os.path.exists(last_workfile):
             self.log.info("It is set to start last workfile on start.")
         else:
-            executable_path = self.launch_context.env["SPTREE_EXE"]
-            template_directory = os.path.dirname(
-                os.path.dirname(executable_path)
-            )
+            source_template_file = self.get_custom_template_path()
             staging_dir = tempdir.get_temp_dir(
                 self.data["project_name"],
                 use_local_temp=True
             )
-            # TODO: we can allow users to use their custom
-            # templates by task type.
-            spm_filename = "Blank.spm"
-            source_template_file = os.path.join(
-                template_directory, f"tree_templates/Games/{spm_filename}")
+            spm_filename = os.path.basename(source_template_file)
             last_workfile = os.path.join(staging_dir, spm_filename)
             shutil.copyfile(source_template_file, last_workfile)
 
@@ -43,3 +36,16 @@ class CreateTempSpmFile(PreLaunchHook):
 
         self.launch_context.env["CURRENT_SPM"] = last_workfile
 
+    def get_custom_template_path(self):
+        speedtree_settings = self.data["project_settings"]["speedtree"]
+        template_path = speedtree_settings["template_path"]
+        if template_path and os.path.exists(template_path):
+            return template_path
+        executable_path = self.launch_context.env["SPTREE_EXE"]
+        template_directory = os.path.dirname(
+            os.path.dirname(executable_path)
+        )
+        template_path = os.path.join(
+            template_directory, "tree_templates/Games/Blank.spm")
+
+        return template_path
