@@ -62,6 +62,8 @@ class ToolsDialog(QtWidgets.QDialog):
         self.setWindowFlags(
             QtCore.Qt.Window
             | QtCore.Qt.WindowStaysOnTopHint
+            | QtCore.Qt.WindowMinimizeButtonHint
+	        | QtCore.Qt.WindowMaximizeButtonHint
         )
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
 
