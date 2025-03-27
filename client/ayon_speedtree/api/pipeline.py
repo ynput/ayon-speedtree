@@ -100,6 +100,7 @@ class SpeedtreeHost(HostBase, IWorkfileHost, ILoadHost, IPublishHost):
 
     def open_workfile(self, filepath):
         load_spm_file(filepath)
+        os.environ["CURRENT_SPM"] = filepath
         return filepath
 
     def save_workfile(self, filepath=None):
