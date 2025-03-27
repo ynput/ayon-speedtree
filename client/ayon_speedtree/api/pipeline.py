@@ -88,16 +88,7 @@ class SpeedtreeHost(HostBase, IWorkfileHost, ILoadHost, IPublishHost):
         return context
 
     def get_current_workfile(self):
-        work_dir = get_workdir()
-        txt_dir = os.path.join(
-            work_dir, ".sptree_metadata").replace(
-                "\\", "/"
-        )
-        with open (f"{txt_dir}/current_file.txt", "r") as current_file:
-            content = str(current_file.read())
-            filepath = content.rstrip('\x00')
-            current_file.close()
-            return filepath
+        return os.environ["CURRENT_SPM"]
 
     def workfile_has_unsaved_changes(self):
         # Pop-up dialog would be located to ask if users
@@ -109,17 +100,13 @@ class SpeedtreeHost(HostBase, IWorkfileHost, ILoadHost, IPublishHost):
 
     def open_workfile(self, filepath):
         load_spm_file(filepath)
-        set_current_file(filepath=filepath)
         return filepath
 
     def save_workfile(self, filepath=None):
-        if not filepath:
-            filepath = self.get_current_workfile()
         with save_scene("Work Files"):
             context = open_workfile()
             filepath = save_workfile(filepath, context)
         copy_ayon_data(filepath)
-        set_current_file(filepath)
         load_spm_file(filepath)
         return filepath
 
@@ -145,9 +132,6 @@ class SpeedtreeHost(HostBase, IWorkfileHost, ILoadHost, IPublishHost):
 
         Usually this aligns roughly with the start of Speedtree.
         """
-        #TODO: figure out how to deal with the last workfile issue
-        current_file = os.environ["CURRENT_SPM"]
-        set_current_file(current_file)
         context = get_global_context()
         save_current_workfile_context(context)
         # Initialize the SpeedTree system
@@ -434,29 +418,6 @@ def get_load_workfile_metadata(metadata_key):
             file_content.extend(content)
             data.close()
     return file_content
-
-
-def set_current_file(filepath=None):
-    """Function to store current workfile path
-
-    Args:
-        filepath (str, optional): current workfile path. Defaults to None.
-    """
-    work_dir = get_workdir()
-    txt_dir = os.path.join(
-        work_dir, ".sptree_metadata").replace(
-            "\\", "/"
-    )
-    os.makedirs(txt_dir, exist_ok=True)
-    txt_file = f"{txt_dir}/current_file.txt"
-    if filepath is None:
-        with open(txt_file, "w"):
-            pass
-    with open (txt_file, "w") as current_file:
-        current_file.write(filepath)
-        current_file.close()
-
-    return filepath
 
 
 def imprint(container, representation_id):
