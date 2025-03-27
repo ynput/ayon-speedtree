@@ -99,14 +99,15 @@ class SpeedtreeHost(HostBase, IWorkfileHost, ILoadHost, IPublishHost):
         return [".spm"]
 
     def open_workfile(self, filepath):
-        load_spm_file(filepath)
         os.environ["CURRENT_SPM"] = filepath
+        load_spm_file(filepath)
         return filepath
 
     def save_workfile(self, filepath=None):
         with save_scene("Work Files"):
             context = open_workfile()
             filepath = save_workfile(filepath, context)
+        print(f"Saving Spm file: {filepath}")
         copy_ayon_data(filepath)
         load_spm_file(filepath)
         return filepath
