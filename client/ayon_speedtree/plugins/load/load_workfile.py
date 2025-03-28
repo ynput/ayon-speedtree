@@ -86,4 +86,5 @@ class WorkfileLoader(load.LoaderPlugin):
 
         filename = work_template["file"].format_strict(data)
         path = os.path.join(work_root, filename)
+        os.environ["CURRENT_SPM"] = file_path
         host.save_workfile(path)
