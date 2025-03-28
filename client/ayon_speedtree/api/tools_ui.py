@@ -29,7 +29,7 @@ class ToolsBtnsWidget(QtWidgets.QWidget):
         layout.addWidget(workfile_btn , 0)
         layout.addStretch(1)
 
-        # load_btn.clicked.connect(self._on_load)
+        load_btn.clicked.connect(self._on_load)
         # manage_btn.clicked.connect(self._on_manage)
         publish_btn.clicked.connect(self._on_publish)
         workfile_btn.clicked.connect(self._on_workfile)
