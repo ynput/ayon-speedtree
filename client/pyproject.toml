@@ -1,0 +1,6 @@
+[project]
+name="speedtree"
+description="AYON Speedtree addon."
+
+[ayon.runtimeDependencies]
+aiohttp_json_rpc = "*"
