@@ -16,14 +16,14 @@ class ToolsBtnsWidget(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super(ToolsBtnsWidget, self).__init__(parent)
 
-        # load_btn = QtWidgets.QPushButton("Load...", self)
+        load_btn = QtWidgets.QPushButton("Load...", self)
         # manage_btn = QtWidgets.QPushButton("Manage...", self)
         publish_btn = QtWidgets.QPushButton("Publish...", self)
         workfile_btn = QtWidgets.QPushButton("Workfile...", self)
 
         layout = QtWidgets.QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
-        # layout.addWidget(load_btn, 0)
+        layout.addWidget(load_btn, 0)
         # layout.addWidget(manage_btn, 0)
         layout.addWidget(publish_btn, 0)
         layout.addWidget(workfile_btn , 0)
