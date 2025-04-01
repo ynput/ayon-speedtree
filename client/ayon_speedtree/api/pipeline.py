@@ -154,6 +154,19 @@ class SpeedtreeHost(HostBase, IWorkfileHost, ILoadHost, IPublishHost):
 
 def containerise(
         name, context, namespace="", loader=None, containers=None):
+    """Imprint the container data so that it shows in the scene
+    inventory
+
+    Args:
+        name (str): name
+        context (dict): context
+        namespace (str, optional): namespace. Defaults to "".
+        loader (str, optional): name of the loader. Defaults to None.
+        containers (list, optional): existing containers. Defaults to None.
+
+    Returns:
+        dict: data
+    """
     data = {
         "schema": "ayon:container-2.0",
         "id": AYON_CONTAINER_ID,
@@ -550,6 +563,11 @@ def show_tools_dialog():
 
 
 def open_workfile():
+    """Open current workfile with AYON Plugins
+
+    Returns:
+        context: SpeedTree.StpContext
+    """
     context = SpeedTree.StpContext()
     context.new()
     filepath = os.environ["CURRENT_SPM"]
@@ -560,6 +578,16 @@ def open_workfile():
 
 
 def save_workfile(filepath, context):
+    """Save loaded workfile with filepath
+
+    Args:
+        filepath (str): filepath
+        context (SpeedTree.StpContext): context data
+            from spm file
+
+    Returns:
+        str: filepath
+    """
     if filepath:
         options = SpeedTree.StpSaveSpmOptions()
         context.saveSpeedTreeFile(filepath, options)

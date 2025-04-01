@@ -3,7 +3,7 @@ from ayon_applications import PreLaunchHook, LaunchTypes
 
 
 class LaunchServerNoWindow(PreLaunchHook):
-    """Specifically for Zbrush to make the AYON tools launching faster
+    """Specifically for SpeedTree to make the AYON tools launching faster
     """
 
     # Should be as last hook because must change launch arguments to string
