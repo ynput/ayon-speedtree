@@ -154,8 +154,10 @@ class SpeedtreeHost(HostBase, IWorkfileHost, ILoadHost, IPublishHost):
 
 def containerise(
         name, context, namespace="", loader=None, containers=None):
-    """Imprint the container data so that it shows in the scene
-    inventory
+    """Imprint a loaded container with metadata.
+
+    Containerisation enables a tracking of version, author and origin
+    for loaded assets.
 
     Args:
         name (str): name
