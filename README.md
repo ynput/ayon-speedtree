@@ -8,7 +8,7 @@ This adds Unity SpeedTree integration for AYON. SpeedTree is the industry-standa
 * https://docs.unity3d.com/speedtree-pipeline-sdk/manual/index.html
 
 ## Settings
-Path to Zbrush executable must be set in the Ayon Setting in `Applications` addon (`ayon+settings://applications/applications/speedtree`) and added in `Anatomy`.`Attributes` for particular project to be visible in the Launcher.
+Path to SpeedTree executable must be set in the Ayon Setting in `Applications` addon (`ayon+settings://applications/applications/speedtree`), for more information see [Applications and Tools](https://help.ayon.app/articles/3945756-applications-and-tools) documentation.
 
 ### Implemented workflows
 Currently supports importing/exporting models and saving/opening/publishing workfiles in SpeedTree integration. All the associated data would be stored in `.sptree_metadata` folder
