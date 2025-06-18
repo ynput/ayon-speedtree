@@ -19,7 +19,7 @@ class SpeedtreeStartupScript(PreLaunchHook):
     launch_types = {LaunchTypes.local}
 
     def _get_version(self, sdk_folder: pathlib.Path):
-        site.addsitedir(sdk_folder.as_posix())
+        site.addsitedir(pathlib.Path(sdk_folder).as_posix())
         import speedtree.SpeedTree as SpeedTree
 
         return SpeedTree.__version__
