@@ -69,9 +69,9 @@ class SpeedtreeStartupScript(PreLaunchHook):
                 "SDK python binding folder.")
 
         version = self._get_version(sdk_folder)
-        dst_folder = os.path.join(
+        dst_folder = pathlib.Path(os.path.join(
             SPTREE_ADDON_ROOT, "api", "sdk", "speedtree", version
-        )
+        ))
         self._sync_sdk_folder_by_perforce(sdk_folder)
         python_env = self.launch_context.env["PYTHONPATH"]
         paths = python_env.split(os.pathsep)
