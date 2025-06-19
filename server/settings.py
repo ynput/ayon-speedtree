@@ -20,6 +20,6 @@ class SpeedtreeSettings(BaseSettingsModel):
 
 
 DEFAULT_SPTREE_VALUES = {
-    "sdk_directory": "/path/to/bindings/python/python3.9/speedtree",
+    "sdk_directory": "/path/to/bindings/python/python3.9",
     "template_path": ""
 }
