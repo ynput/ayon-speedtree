@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """Creator plugin for creating workfiles."""
+import inspect
 import ayon_api
 from ayon_core.pipeline import CreatedInstance
 from ayon_speedtree.api import plugin
@@ -51,9 +52,23 @@ class CreateWorkfile(plugin.SpeedTreeAutoCreator):
                 "folderPath": folder_path,
             }
 
-            new_instance = CreatedInstance(
-                self.product_type, product_name, data, self
-            )
+            instance_kwargs = {
+                "product_type": self.product_type,
+                "product_name": product_name,
+                "data": data,
+                "creator": self,
+            }
+
+            # this is here to retain compatibility with older ayon-core
+            # but should be removed in future
+            if hasattr(self, "product_base_type"):
+                signature = inspect.signature(CreatedInstance)
+                if "product_base_type" in signature.parameters:
+                    instance_kwargs["product_base_type"] = (
+                        self.product_base_type
+                    )
+
+            new_instance = CreatedInstance(**instance_kwargs)
             instances_data = self.host.list_instances()
             instances_data.append(new_instance.data_to_store())
             self.host.write_instances(instances_data)
