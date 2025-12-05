@@ -1,4 +1,3 @@
-import inspect
 from ayon_core.pipeline import CreatedInstance, Creator, AutoCreator
 from ayon_core.pipeline.create.creator_plugins import cache_and_get_instances
 
@@ -41,19 +40,6 @@ class SpeedtreeCreatorBase:
 
 class SpeedTreeCreator(Creator, SpeedtreeCreatorBase):
     def create(self, product_name, instance_data, pre_create_data):
-        # TODO: use selection
-        instance_kwargs = {
-            "product_type": self.product_type,
-            "product_name": product_name,
-            "data": instance_data,
-            "creator": self
-        }
-        if hasattr(self, "product_base_type"):
-            signature = inspect.signature(CreatedInstance)
-            if "product_base_type" in signature.parameters:
-                instance_kwargs["product_base_type"] = (
-                    self.product_base_type
-                )
         new_instance = CreatedInstance(
             product_type=self.product_type,
             product_name=product_name,
