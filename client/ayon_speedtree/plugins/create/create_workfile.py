@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 """Creator plugin for creating workfiles."""
-import inspect
 import ayon_api
 from ayon_core.pipeline import CreatedInstance
 from ayon_speedtree.api import plugin
