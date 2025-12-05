@@ -52,23 +52,12 @@ class CreateWorkfile(plugin.SpeedTreeAutoCreator):
                 "folderPath": folder_path,
             }
 
-            instance_kwargs = {
-                "product_type": self.product_type,
-                "product_name": product_name,
-                "data": data,
-                "creator": self,
-            }
-
-            # this is here to retain compatibility with older ayon-core
-            # but should be removed in future
-            if hasattr(self, "product_base_type"):
-                signature = inspect.signature(CreatedInstance)
-                if "product_base_type" in signature.parameters:
-                    instance_kwargs["product_base_type"] = (
-                        self.product_base_type
-                    )
-
-            new_instance = CreatedInstance(**instance_kwargs)
+            new_instance = CreatedInstance(
+                product_type=self.product_type,
+                product_name=product_name,
+                data=data,
+                creator=self
+            )
             instances_data = self.host.list_instances()
             instances_data.append(new_instance.data_to_store())
             self.host.write_instances(instances_data)

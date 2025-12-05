@@ -54,7 +54,12 @@ class SpeedTreeCreator(Creator, SpeedtreeCreatorBase):
                 instance_kwargs["product_base_type"] = (
                     self.product_base_type
                 )
-        new_instance = CreatedInstance(**instance_kwargs)
+        new_instance = CreatedInstance(
+            product_type=self.product_type,
+            product_name=product_name,
+            data=instance_data,
+            creator=self
+        )
         self._store_new_instance(new_instance)
 
     def collect_instances(self):
