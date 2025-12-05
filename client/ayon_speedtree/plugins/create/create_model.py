@@ -8,4 +8,5 @@ class CreateModel(plugin.SpeedTreeCreator):
     identifier = "io.ayon.creators.speedtree.model"
     label = "Model"
     product_type = "model"
+    product_base_type = "model"
     icon = "cube"
