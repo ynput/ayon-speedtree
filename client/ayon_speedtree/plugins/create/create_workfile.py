@@ -9,6 +9,7 @@ class CreateWorkfile(plugin.SpeedTreeAutoCreator):
     identifier = "io.ayon.creators.speedtree.workfile"
     label = "Workfile"
     product_type = "workfile"
+    product_base_type = "workfile"
     icon = "fa5.file"
 
     default_variant = "Main"
@@ -51,7 +52,10 @@ class CreateWorkfile(plugin.SpeedTreeAutoCreator):
             }
 
             new_instance = CreatedInstance(
-                self.product_type, product_name, data, self
+                product_type=self.product_type,
+                product_name=product_name,
+                data=data,
+                creator=self
             )
             instances_data = self.host.list_instances()
             instances_data.append(new_instance.data_to_store())
