@@ -18,7 +18,8 @@ from ayon_core.pipeline.version_start import get_versioning_start
 class WorkfileLoader(load.LoaderPlugin):
     """SpeedTree Workfile Loader."""
 
-    product_types = {"workfile"}
+    product_base_types = {"workfile"}
+    product_types = product_base_types
     representations = {"spm"}
     order = -9
     icon = "code-fork"
@@ -55,7 +56,10 @@ class WorkfileLoader(load.LoaderPlugin):
         anatomy = Anatomy(project_name)
 
         data = get_template_data_with_names(
-            project_name, folder_path, task_name, host_name
+            project_name,
+            folder_path,
+            task_name,
+            host_name=host_name,
         )
 
         data["root"] = anatomy.roots
@@ -74,7 +78,7 @@ class WorkfileLoader(load.LoaderPlugin):
         if version is None:
             version = get_versioning_start(
                 project_name,
-                "tvpaint",
+                host_name,
                 task_name=task_name,
                 task_type=data["task"]["type"],
                 product_type="workfile"

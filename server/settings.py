@@ -1,8 +1,38 @@
 from ayon_server.settings import (
     BaseSettingsModel,
     SettingsField,
-
 )
+
+
+class ProductTypeItemModel(BaseSettingsModel):
+    _layout = "compact"
+    product_type: str = SettingsField(
+        title="Product type",
+        description="Product type name",
+    )
+    label: str = SettingsField(
+        "",
+        title="Label",
+        description="Label to display in UI for the product type",
+    )
+
+
+class CreateModelModel(BaseSettingsModel):
+    product_type_items: list[ProductTypeItemModel] = SettingsField(
+        default_factory=list,
+        title="Product type items",
+        description=(
+            "Optional list of product types that this plugin can create."
+        )
+    )
+
+
+class CreatPluginsModel(BaseSettingsModel):
+    CreateModel: CreateModelModel = SettingsField(
+        default_factory=CreateModelModel,
+        title="Create Model",
+        description="Creator for model product"
+    )
 
 
 class SpeedtreeSettings(BaseSettingsModel):
@@ -16,6 +46,10 @@ class SpeedtreeSettings(BaseSettingsModel):
         "", title="Custom Template Path",
         description=("The path to get the custom template "
                      "to be used in SpeedTree Integration.")
+    )
+    create: CreatPluginsModel = SettingsField(
+        default_factory=CreatPluginsModel,
+        title="Create Plugins",
     )
 
 

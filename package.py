@@ -20,7 +20,7 @@ ayon_server_version = ">=1.1.2"
 # Mapping of addon name to version requirements
 # - addon with specified version range must exist to be able to use this addon
 ayon_required_addons = {
-    "core": ">=1.0.12",
+    "core": ">=1.8.0",
 }
 # Mapping of addon name to version requirements
 # - if addon is used in same bundle the version range must be valid
