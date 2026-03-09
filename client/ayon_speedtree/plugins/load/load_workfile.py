@@ -18,7 +18,8 @@ from ayon_core.pipeline.version_start import get_versioning_start
 class WorkfileLoader(load.LoaderPlugin):
     """SpeedTree Workfile Loader."""
 
-    product_types = {"workfile"}
+    product_base_types = {"workfile"}
+    product_types = product_base_types
     representations = {"spm"}
     order = -9
     icon = "code-fork"
