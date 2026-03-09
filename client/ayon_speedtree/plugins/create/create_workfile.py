@@ -44,6 +44,7 @@ class CreateWorkfile(plugin.SpeedTreeAutoCreator):
                 task_entity,
                 variant,
                 host_name,
+                product_type=self.product_type,
             )
             data = {
                 "task": task_name,
@@ -52,6 +53,7 @@ class CreateWorkfile(plugin.SpeedTreeAutoCreator):
             }
 
             new_instance = CreatedInstance(
+                product_base_type=self.product_base_type,
                 product_type=self.product_type,
                 product_name=product_name,
                 data=data,
@@ -74,7 +76,12 @@ class CreateWorkfile(plugin.SpeedTreeAutoCreator):
                 project_name, folder_entity["id"], task_name
             )
             product_name = self.get_product_name(
-                variant, task_entity, folder_entity, project_name, host_name
+                variant,
+                task_entity,
+                folder_entity,
+                project_name,
+                host_name,
+                product_type=self.product_type,
             )
             current_instance["folderPath"] = folder_path
             current_instance["task"] = task_entity["name"]
