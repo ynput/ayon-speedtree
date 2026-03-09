@@ -39,7 +39,7 @@ class SpeedtreeCreatorBase:
 
 
 class SpeedTreeCreator(Creator, SpeedtreeCreatorBase):
-    setting_category = "speedtree"
+    settings_category = "speedtree"
     skip_discovery = True
 
     def create(self, product_name, instance_data, pre_create_data):
@@ -89,6 +89,9 @@ class SpeedTreeCreator(Creator, SpeedtreeCreatorBase):
 
 
 class SpeedTreeAutoCreator(AutoCreator, SpeedtreeCreatorBase):
+    settings_category = "speedtree"
+    skip_discovery = True
+    
     def collect_instances(self):
         self._collect_instances()
 
