@@ -31,18 +31,13 @@ class CreateTempSpmFile(PreLaunchHook):
     def get_workfile_path(self):
         workfile_path = self.data.get("workfile_path")
         if workfile_path:
-            if not os.path.exists(workfile_path):
-                raise ApplicationLaunchFailed(
-                    f"Workfile path '{workfile_path}' does not exist"
-                )
             return workfile_path
 
         if self.data.get("start_last_workfile"):
             self.log.info("It is set to start last workfile on start.")
             workfile_path = self.data.get("last_workfile_path")
-
-        if workfile_path and os.path.exists(workfile_path):
-            return workfile_path
+            if workfile_path and os.path.exists(workfile_path):
+                return workfile_path
 
         source_template_file = self.get_custom_template_path()
         staging_dir = tempdir.get_temp_dir(
