@@ -5,7 +5,6 @@ from ayon_core.pipeline import tempdir
 from ayon_applications import (
     PreLaunchHook,
     LaunchTypes,
-    ApplicationLaunchFailed,
 )
 
 
