@@ -1,14 +1,18 @@
 import os
 import shutil
-from ayon_applications import PreLaunchHook, LaunchTypes
+
 from ayon_core.pipeline import tempdir
+from ayon_applications import (
+    PreLaunchHook,
+    LaunchTypes,
+)
 
 
 class CreateTempSpmFile(PreLaunchHook):
     """Create Temp Spm File to SpeedTree.
 
     The temp spm file would be created in SpeedTree prior to
-    the launch of the software if there is no last workfile
+    the launch of the software if there is no workfile to launch.
 
     Hook `GlobalHostDataHook` must be executed before this hook.
     """
@@ -17,24 +21,32 @@ class CreateTempSpmFile(PreLaunchHook):
     launch_types = {LaunchTypes.local}
 
     def execute(self):
-        last_workfile = self.data.get("last_workfile_path")
-        if self.data.get("start_last_workfile")  \
-            and last_workfile  \
-                and os.path.exists(last_workfile):
+        workfile_path = self.get_workfile_path()
+
+        self.launch_context.launch_args.append(workfile_path)
+
+        self.launch_context.env["CURRENT_SPM"] = workfile_path
+
+    def get_workfile_path(self):
+        workfile_path = self.data.get("workfile_path")
+        if workfile_path:
+            return workfile_path
+
+        if self.data.get("start_last_workfile"):
             self.log.info("It is set to start last workfile on start.")
-        else:
-            source_template_file = self.get_custom_template_path()
-            staging_dir = tempdir.get_temp_dir(
-                self.data["project_name"],
-                use_local_temp=True
-            )
-            spm_filename = os.path.basename(source_template_file)
-            last_workfile = os.path.join(staging_dir, spm_filename)
-            shutil.copyfile(source_template_file, last_workfile)
+            workfile_path = self.data.get("last_workfile_path")
+            if workfile_path and os.path.exists(workfile_path):
+                return workfile_path
 
-        self.launch_context.launch_args.append(last_workfile)
-
-        self.launch_context.env["CURRENT_SPM"] = last_workfile
+        source_template_file = self.get_custom_template_path()
+        staging_dir = tempdir.get_temp_dir(
+            self.data["project_name"],
+            use_local_temp=True
+        )
+        spm_filename = os.path.basename(source_template_file)
+        workfile_path = os.path.join(staging_dir, spm_filename)
+        shutil.copyfile(source_template_file, workfile_path)
+        return workfile_path
 
     def get_custom_template_path(self):
         speedtree_settings = self.data["project_settings"]["speedtree"]
