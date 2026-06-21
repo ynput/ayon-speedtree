@@ -1,5 +1,12 @@
 [
   {
+    "version": "test-build",
+    "title": "test-build",
+    "aliases": [
+      "latest"
+    ]
+  },
+  {
     "version": "1.0.0",
     "title": "1.0.0",
     "aliases": []
@@ -7,8 +14,6 @@
   {
     "version": "0.2.0",
     "title": "0.2.0",
-    "aliases": [
-      "latest"
-    ]
+    "aliases": []
   }
 ]
