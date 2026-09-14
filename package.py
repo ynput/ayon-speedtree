@@ -6,7 +6,7 @@ name = "speedtree"
 title = "SpeedTree"
 
 # Required: Valid semantic version (https://semver.org/)
-version = "0.2.1"
+version = "0.2.1+dev"
 
 # Name of client code directory imported in AYON launcher
 # - do not specify if there is no client code
