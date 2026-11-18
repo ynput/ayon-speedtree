@@ -312,7 +312,6 @@ class QtSpeedTreeRpc(BaseSpeedTreeRpc):
             (route_name, self.loader_tool),
             (route_name, self.publish_tool),
             (route_name, self.scene_inventory_tool),
-            (route_name, self.library_loader_tool),
             (route_name, self.experimental_tools)
         )
 
@@ -345,12 +344,6 @@ class QtSpeedTreeRpc(BaseSpeedTreeRpc):
         log.info("Triggering Scene inventory tool")
         item = MainThreadItem(self.tools_helper.show_scene_inventory)
         # Do not wait for result of callback
-        self._execute_in_main_thread(item, wait=False)
-        return
-
-    async def library_loader_tool(self):
-        log.info("Triggering Library loader tool")
-        item = MainThreadItem(self.tools_helper.show_library_loader)
         self._execute_in_main_thread(item, wait=False)
         return
 
